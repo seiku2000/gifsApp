@@ -9,6 +9,10 @@ export const environment = {
     //APIS keys
 
 
+    giphyKey: 'pazZG8slnHBccEuoXHiMjMS3TK50TsZP',
+
+    giphyUrl: 'https://api.giphy.com/v1',
+
     //URLS
 
 

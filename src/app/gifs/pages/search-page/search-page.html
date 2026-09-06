@@ -1,1 +1,16 @@
-<p>search searching!</p>,
+<!---<h2 class="text-2xl font-bold mt-10">Busqueda</h2>-->
+<h2 class="font-bold text-2xl mat-headline-medium mt-6 mb-4 "> Busqueda gifs:</h2>
+<h3 class="text-sm text-gray-500 mb-2">BuscarGifs por nombre y descripcion</h3>
+
+<mat-form-field appearance="outline" class="w-sm  md:w-md  lg:w-full ">
+    <mat-label>Search</mat-label>
+    <input matInput placeholder="buscar personaje" #txtSearch (keyup.enter)="onSearch(txtSearch.value)"
+        formControlName="search" class="border border-blue-500 rounded-2xl  ">
+    <mat-icon matSuffix>search</mat-icon>
+</mat-form-field>
+
+
+<section class="py-5">
+    <!--   <app-gif-list [Gifs]="[]" />-->
+    <app-gif-list [Gifs]="[]" />
+</section>
