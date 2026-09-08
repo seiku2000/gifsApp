@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive } from "@angular/router";
+import { GifsService } from '../../../services/gifs.service';
 
 interface MenuOptions {
   icon: string,
@@ -33,4 +34,21 @@ export class SideMenuOptions {
     }
   ]
 
+
+  public searchHistoryService = inject(GifsService);
+
+  // public searchHistory = computed(() => this.searchHistoryService.searchHistoryKeys());
+
+
+
+  constructor() {
+    // console.log(this.searchHistory)
+
+  }
+
+
+
+
+
+  //public 
 }

@@ -20,8 +20,10 @@ export default class SearchPage {
   public onSearch(query: string) {
     // this.gifSearchService.searchGifs(query);
     //console.log(query);
-    this.gifSearchService.searchGifs(query).subscribe(rest => {
-      console.log(rest.data);
+    this.gifSearchService.searchGifs(query).subscribe((rest: Gif[]) => {
+      // console.log(rest);
+
+      this.gifs.set(rest);
     })
   }
 }
