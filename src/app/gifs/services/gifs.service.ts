@@ -4,7 +4,7 @@ import { environment } from '@environments/environment'; //variables de entorno
 import type { Giphy } from '../interfaces/giphy.interface'; // tipado de la respuesta
 import { Gif } from '../interfaces/gif.interface';
 import { GiphyItemMapper } from '../mapper/gif.mapper';//este para traformar la data que solo necesitemo del api sin necesidad estar tomando todo
-import { map, tap } from 'rxjs';
+import { map, Observable, tap } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class GifsService {
@@ -44,7 +44,7 @@ export class GifsService {
     }
 
     //https://api.giphy.com/v1/gifs/trending -esto me trae todos los gifs del momento
-    loadTrendingGifs() {
+    loadTrendingGifs(): void {
         //aqui en vez de feth usamos httpClient que es mas eficiente y seguro
         this.http.get<Giphy>(`${environment.giphyUrl}/gifs/trending`, {//pasamos el url de la api con su key y el limite de  gifs que queremos
             //tenemos get, post, put, delete, patch que son para hacer peticiones http
@@ -64,7 +64,7 @@ export class GifsService {
 
     }
     // retornamos un observale un observable es como un flujo de datos que se puede suscribir a el.
-    searchGifs(query: string) {
+    searchGifs(query: string): Observable<Gif[]> {
         return this.http.get<Giphy>(`${environment.giphyUrl}/gifs/search`, {
             params: {
                 api_key: environment.giphyKey,
@@ -102,6 +102,11 @@ export class GifsService {
             console.log(gifsSearch);
             // console.log(resp.data);++
         });*/
+    }
+
+
+    getHistoryGifs(query: string): Gif[] {
+        return this.searchHistory()[query] ?? [];
     }
 }
 
