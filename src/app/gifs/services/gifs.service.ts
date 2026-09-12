@@ -1,10 +1,20 @@
 import { HttpClient } from '@angular/common/http'; // para hacer peticiones http
-import { computed, inject, Injectable, signal } from '@angular/core'; //inject: me permite inyectar dependencias, Injectable: me permite inyectar el servicio
+import { computed, effect, inject, Injectable, signal } from '@angular/core'; //inject: me permite inyectar dependencias, Injectable: me permite inyectar el servicio
 import { environment } from '@environments/environment'; //variables de entorno
 import type { Giphy } from '../interfaces/giphy.interface'; // tipado de la respuesta
 import { Gif } from '../interfaces/gif.interface';
 import { GiphyItemMapper } from '../mapper/gif.mapper';//este para traformar la data que solo necesitemo del api sin necesidad estar tomando todo
 import { map, Observable, tap } from 'rxjs';
+
+const Gif_Key = 'searchHistory';//esta es la clave que vamos a usar para guardar el historial de busquedas en el localstorage
+const loadFromLocalStorage = (): Record<string, Gif[]> => {
+const history= localStorage.getItem(Gif_Key);
+if(!history) return {};
+return JSON.parse(history);
+}
+
+
+
 
 @Injectable({ providedIn: 'root' })
 export class GifsService {
@@ -29,9 +39,13 @@ export class GifsService {
 
 
     // Record<string, Gif[]>  es un tipo de dato que permite crear un objeto que tiene como claves strings y como valores arrays de Gifs.                   
-    searchHistory = signal<Record<string, Gif[]>>({});
+    searchHistory = signal<Record<string, Gif[]>>(loadFromLocalStorage());
     searchHistoryKeys = computed(() => Object.keys(this.searchHistory()));
 
+
+    saveGifLocalstorage = effect(() => {
+        localStorage.setItem(Gif_Key, JSON.stringify(this.searchHistory()));
+    });
 
 
 
