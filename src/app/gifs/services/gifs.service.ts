@@ -8,9 +8,9 @@ import { map, Observable, tap } from 'rxjs';
 
 const Gif_Key = 'searchHistory';//esta es la clave que vamos a usar para guardar el historial de busquedas en el localstorage
 const loadFromLocalStorage = (): Record<string, Gif[]> => {
-const history= localStorage.getItem(Gif_Key);
-if(!history) return {};
-return JSON.parse(history);
+    const history = localStorage.getItem(Gif_Key);
+    if (!history) return {};
+    return JSON.parse(history);
 }
 
 
@@ -33,16 +33,32 @@ export class GifsService {
     //esto es para hacer peticiones http a la api de giphy  
     private http = inject(HttpClient);
     //esto es el array de los gifs que se muestran en la pantalla
-    public trendingGifs = signal<Gif[]>([]);
+    public trendingGifs = signal<Gif[]>([]);//[g1,g2,g3,g4,g5,g6,g7,g8,g9]
     //esto es para saber si esta cargando
     trendingGifsLoading = signal<boolean>(false);
+
+    trendingGifsPage = signal(0);
+
+    //computed es una funcion que se ejecuta cada vez que hay un cambio en el signal trendingGifs 
+    // y hace la division en grupos de 3 en 3 para que se muestren de esa forma el historial
+    treadingGroup = computed<Gif[][]>(() => {//[[g1,g2,g3],[g4,g5,g6],[g7,g8,g9]]
+        const groups: Gif[][] = [];
+        for (let i = 0; i < this.trendingGifs().length; i += 3) {
+            const group = this.trendingGifs().slice(i, i + 3);
+            groups.push(group);
+        }
+        //console.log(groups);
+
+        return groups;
+    })
+
 
 
     // Record<string, Gif[]>  es un tipo de dato que permite crear un objeto que tiene como claves strings y como valores arrays de Gifs.                   
     searchHistory = signal<Record<string, Gif[]>>(loadFromLocalStorage());
     searchHistoryKeys = computed(() => Object.keys(this.searchHistory()));
 
-
+    //es una funcion se ejecuta cada vez que hay un cambio en el signal searchHistory
     saveGifLocalstorage = effect(() => {
         localStorage.setItem(Gif_Key, JSON.stringify(this.searchHistory()));
     });
@@ -59,12 +75,14 @@ export class GifsService {
 
     //https://api.giphy.com/v1/gifs/trending -esto me trae todos los gifs del momento
     loadTrendingGifs(): void {
+
+
         //aqui en vez de feth usamos httpClient que es mas eficiente y seguro
         this.http.get<Giphy>(`${environment.giphyUrl}/gifs/trending`, {//pasamos el url de la api con su key y el limite de  gifs que queremos
             //tenemos get, post, put, delete, patch que son para hacer peticiones http
             params: {
                 api_key: environment.giphyKey,//para autenticarnos
-                limit: 20,//para obtener los 20 gifs mas populares
+                limit: 36,//para obtener los 20 gifs mas populares
 
             },
         }).subscribe((resp: Giphy) => {//es subscribe para obtener la respuesta de la peticion http
@@ -72,7 +90,7 @@ export class GifsService {
             const gifs = GiphyItemMapper.mapGiphyItemsToGifAray(resp.data);//mapeamos la respuesta
             this.trendingGifs.set(gifs);//establecemos los gifs en el signal
             this.trendingGifsLoading.set(false);
-            console.log(gifs);
+            //   console.log(gifs);
         });
 
 
