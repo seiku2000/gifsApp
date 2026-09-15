@@ -35,9 +35,9 @@ export class GifsService {
     //esto es el array de los gifs que se muestran en la pantalla
     public trendingGifs = signal<Gif[]>([]);//[g1,g2,g3,g4,g5,g6,g7,g8,g9]
     //esto es para saber si esta cargando
-    trendingGifsLoading = signal<boolean>(false);
+    public trendingGifsLoading = signal<boolean>(false);
 
-    trendingGifsPage = signal(0);
+    private trendingGifsPage = signal(0);
 
     //computed es una funcion que se ejecuta cada vez que hay un cambio en el signal trendingGifs 
     // y hace la division en grupos de 3 en 3 para que se muestren de esa forma el historial
@@ -76,19 +76,26 @@ export class GifsService {
     //https://api.giphy.com/v1/gifs/trending -esto me trae todos los gifs del momento
     loadTrendingGifs(): void {
 
+        if (this.trendingGifsLoading()) return;
+
+        this.trendingGifsLoading.set(true);
+
 
         //aqui en vez de feth usamos httpClient que es mas eficiente y seguro
         this.http.get<Giphy>(`${environment.giphyUrl}/gifs/trending`, {//pasamos el url de la api con su key y el limite de  gifs que queremos
             //tenemos get, post, put, delete, patch que son para hacer peticiones http
             params: {
                 api_key: environment.giphyKey,//para autenticarnos
-                limit: 36,//para obtener los 20 gifs mas populares
+                limit: 24,//para obtener los 20 gifs mas populares
+                offset: this.trendingGifsPage() * 24,
 
             },
         }).subscribe((resp: Giphy) => {//es subscribe para obtener la respuesta de la peticion http
             // console.log(resp);
             const gifs = GiphyItemMapper.mapGiphyItemsToGifAray(resp.data);//mapeamos la respuesta
-            this.trendingGifs.set(gifs);//establecemos los gifs en el signal
+            //this.trendingGifs.set(gifs);//establecemos los gifs en el signal
+            this.trendingGifs.update((currentGifs) => [...currentGifs, ...gifs]);
+            this.trendingGifsPage.update((page) => page + 1);
             this.trendingGifsLoading.set(false);
             //   console.log(gifs);
         });
